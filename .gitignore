@@ -3,6 +3,9 @@
 ##
 ## Get latest from https://github.com/github/gitignore/blob/master/VisualStudio.gitignore
 
+# Service Account Key
+serviceAccountKey.json
+
 # User-specific files
 *.rsuser
 *.suo
