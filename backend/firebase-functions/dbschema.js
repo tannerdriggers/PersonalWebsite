@@ -16,7 +16,7 @@ let db = {
             createdAt: "2019-03-15T10:59:52.798Z",
             commentId: "0",
             userHandle: "0",
-            disabled: "False",
+            enabled: "True",
             items: [
                 Int32Array
             ]
@@ -29,7 +29,7 @@ let db = {
             description: "I am an Item",
             price: "00.00",
             concurrency: "us",
-            disabled: "False",
+            enabled: "True",
         }
     ]
 };

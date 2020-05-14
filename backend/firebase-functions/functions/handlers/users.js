@@ -11,6 +11,9 @@ exports.Signup = (req, res) => {
     password: req.body.password,
     confirmPassword: req.body.confirmPassword,
     handle: req.body.handle,
+    bio: req.body.bio,
+    website: req.body.website,
+    location: req.body.location,
   };
 
   // validate data
@@ -40,11 +43,14 @@ exports.Signup = (req, res) => {
     .then((tok) => {
       token = tok;
       const userCredentials = {
-        handle: newUser.handle,
+        userId: userId,
         email: newUser.email,
+        handle: newUser.handle,
         createdAt: new Date().toISOString(),
         imageUrl: `https://firebasestorage.googleapis.com/v0/b/${config.storageBucket}/o/${noImg}?alt=media`,
-        userId: userId,
+        bio: newUser.bio,
+        website: newUser.website,
+        location: newUser.location,
       };
       return db.doc(`/users/${newUser.handle}`).set(userCredentials);
     })

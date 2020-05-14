@@ -3,12 +3,15 @@ const app = require("express")();
 
 const FBAuth = require("./util/FBAuth");
 const ADMINAuth = require("./util/ADMINAuth");
-const { GetAllOrders, CreateOrder, DeleteOrder } = require("./handlers/orders");
+const { GetAllOrders, CreateOrder, DeleteOrder, GetOrder } = require("./handlers/orders");
 const { Signup, Login, UploadImage, AddUserDetails, GetAuthenticatedUser } = require("./handlers/users");
 
+// Orders routes
+app.get("/orders", FBAuth, GetAllOrders);
+
 // Order routes
-app.get("/orders", ADMINAuth, GetAllOrders);
 app.post("/order", FBAuth, CreateOrder);
+app.get("/order/:orderId", FBAuth, GetOrder);
 app.delete("/order/:orderId", FBAuth, DeleteOrder);
 
 // User routes

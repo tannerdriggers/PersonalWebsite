@@ -1,6 +1,7 @@
 const { db } = require("../util/admin");
 const { UserHandle } = require("../util/helpers");
 
+// Gets all of the orders from the user
 const GetAllOrders = async (req, res) => {
   const userHandle = UserHandle(req);
 
@@ -8,15 +9,16 @@ const GetAllOrders = async (req, res) => {
     const data = await db
       .collection("orders")
       .where("userHandle", "==", userHandle)
+      .where("enabled", "==", true)
       .orderBy("createdAt", "desc")
       .get();
     let orders = [];
     data.forEach((doc) => {
       orders.push({
         orderId: doc.id,
-        body: doc.data().body,
         userHandle,
         createdAt: doc.data().createdAt,
+        items: doc.data().items,
       });
     });
     return res.json(orders);
@@ -27,11 +29,14 @@ const GetAllOrders = async (req, res) => {
   }
 };
 
+// Creates a new order
 const CreateOrder = async (req, res) => {
   const newOrder = {
     body: req.body.body,
     userhandle: req.user.handle,
     createdAt: new Date().toISOString(),
+    enabled: true,
+    items: []
   };
 
   try {
@@ -46,8 +51,48 @@ const CreateOrder = async (req, res) => {
   }
 };
 
+// Gets an order from the user
+const GetOrder = (req, res) => {
+  const orderId = req.params.orderId;
+  const userHandle = UserHandle(req);
+
+  if (orderId) {
+    return db.doc(`orders/${orderId}`)
+      .where("enabled", "==", true)
+      .get()
+      .then((doc) => {
+        if (req.user.admin || doc.userHandle === userHandle) {
+          return res.json({
+            orderId: doc.id,
+            body: doc.data().body,
+            userHandle,
+            createdAt: doc.data().createdAt,
+            items: GetItems(doc.data().items)
+          });
+        }
+        return res.status(400).json({ error: "Unauthorized" });
+      })
+      .catch(err => {
+        console.error(err);
+        return res.status(500).json({ error: err.code });
+      });
+  }
+  return res.status(400).json({ error: "Invalid Order" });
+}
+
+const GetItems = async (itemIds) => {
+  try {
+    return db.collection("items").where("itemId", "in", itemIds).get();
+  } catch (err) {
+    console.error(err);
+    return res.status(500).json({ error: err.code });
+  }
+};
+
+// Deletes an order from the user
 const DeleteOrder = async (req, res) => {
   const orderId = req.params.username;
+
   try {
     await db.doc(`orders/${orderId}`)
       .update({ disabled: true })
@@ -63,4 +108,4 @@ const DeleteOrder = async (req, res) => {
   }
 }
 
-module.exports = { GetAllOrders, CreateOrder, DeleteOrder };
+module.exports = { GetAllOrders, CreateOrder, DeleteOrder, GetOrder };
